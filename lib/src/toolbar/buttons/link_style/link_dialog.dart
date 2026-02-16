@@ -66,21 +66,28 @@ class LinkDialogState extends State<LinkDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return AlertDialog(
       backgroundColor: widget.dialogTheme?.dialogBackgroundColor,
       content: Form(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 8),
+            Text(
+              'Link',
+              style: theme.textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              context.loc.text,
+              style: theme.textTheme.labelLarge,
+            ),
+            const SizedBox(height: 20),
             TextFormField(
               keyboardType: TextInputType.text,
               style: widget.dialogTheme?.inputTextStyle,
               decoration: InputDecoration(
-                labelText: context.loc.text,
                 hintText: context.loc.pleaseEnterTextForYourLink,
-                labelStyle: widget.dialogTheme?.labelTextStyle,
-                floatingLabelStyle: widget.dialogTheme?.labelTextStyle,
               ),
               autofocus: true,
               onChanged: _textChanged,
@@ -92,14 +99,16 @@ class LinkDialogState extends State<LinkDialog> {
               ],
             ),
             const SizedBox(height: 16),
+            Text(
+              context.loc.link,
+              style: theme.textTheme.labelLarge,
+            ),
+            const SizedBox(height: 5),
             TextFormField(
               keyboardType: TextInputType.url,
               style: widget.dialogTheme?.inputTextStyle,
               decoration: InputDecoration(
-                labelText: context.loc.link,
                 hintText: context.loc.pleaseEnterTheLinkURL,
-                labelStyle: widget.dialogTheme?.labelTextStyle,
-                floatingLabelStyle: widget.dialogTheme?.labelTextStyle,
               ),
               onChanged: _linkChanged,
               controller: _linkController,
@@ -130,12 +139,28 @@ class LinkDialogState extends State<LinkDialog> {
       );
     }
 
-    return TextButton(
-      onPressed: canPress() ? _applyLink : null,
-      child: Text(
-        context.loc.ok,
-        style: widget.dialogTheme?.buttonTextStyle,
-      ),
+    return Row(
+      spacing: 8,
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: canPress() ? _applyLink : null,
+            child: Text(
+              context.loc.ok,
+              style: widget.dialogTheme?.buttonTextStyle,
+            ),
+          ),
+        ),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: canPress() ? _applyLink : null,
+            child: Text(
+              context.loc.ok,
+              style: widget.dialogTheme?.buttonTextStyle,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
