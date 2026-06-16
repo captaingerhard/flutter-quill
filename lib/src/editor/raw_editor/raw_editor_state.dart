@@ -542,8 +542,6 @@ class QuillRawEditorState extends EditorState
   /// Updates the checkbox positioned at [offset] in document
   /// by changing its attribute according to [value].
   void _handleCheckboxTap(int offset, bool value) {
-    final requestKeyboardFocusOnCheckListChanged =
-        widget.config.requestKeyboardFocusOnCheckListChanged;
     if (!(widget.config.checkBoxReadOnly ?? widget.config.readOnly)) {
       _disableScrollControllerAnimateOnce = true;
       final currentSelection = controller.selection.copyWith();
@@ -552,7 +550,7 @@ class QuillRawEditorState extends EditorState
       _markNeedsBuild();
       controller
         ..ignoreFocusOnTextChange = true
-        ..skipRequestKeyboard = !requestKeyboardFocusOnCheckListChanged
+        ..skipRequestKeyboard = true
         ..formatText(offset, 0, attribute)
         // Checkbox tapping causes controller.selection to go to offset 0
         // Stop toggling those two toolbar buttons
@@ -564,9 +562,10 @@ class QuillRawEditorState extends EditorState
       // Go back from offset 0 to current selection
       SchedulerBinding.instance.addPostFrameCallback((_) {
         controller
-          ..ignoreFocusOnTextChange = false
-          ..skipRequestKeyboard = !requestKeyboardFocusOnCheckListChanged
+          ..ignoreFocusOnTextChange = true
+          ..skipRequestKeyboard = true
           ..updateSelection(currentSelection, ChangeSource.local);
+        controller.ignoreFocusOnTextChange = false;
       });
     }
   }
