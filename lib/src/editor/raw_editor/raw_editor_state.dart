@@ -543,6 +543,7 @@ class QuillRawEditorState extends EditorState
   /// by changing its attribute according to [value].
   void _handleCheckboxTap(int offset, bool value) {
     if (!(widget.config.checkBoxReadOnly ?? widget.config.readOnly)) {
+      _isHandlingCheckboxTap = true;
       _disableScrollControllerAnimateOnce = true;
       final currentSelection = controller.selection.copyWith();
       final attribute = value ? Attribute.checked : Attribute.unchecked;
@@ -564,8 +565,9 @@ class QuillRawEditorState extends EditorState
         controller
           ..ignoreFocusOnTextChange = true
           ..skipRequestKeyboard = true
-          ..updateSelection(currentSelection, ChangeSource.local);
-        controller.ignoreFocusOnTextChange = false;
+          ..updateSelection(currentSelection, ChangeSource.local)
+          ..ignoreFocusOnTextChange = false;
+        _isHandlingCheckboxTap = false;
       });
     }
   }
@@ -1115,6 +1117,9 @@ class QuillRawEditorState extends EditorState
   }
 
   void _handleFocusChanged() {
+    if (_isHandlingCheckboxTap) {
+      return;
+    }
     if (dirty) {
       requestKeyboard();
       SchedulerBinding.instance.addPostFrameCallback(
@@ -1154,6 +1159,11 @@ class QuillRawEditorState extends EditorState
   // block of the same style
   // This causes controller.selection to go to offset 0
   bool _disableScrollControllerAnimateOnce = false;
+
+  // Flag to prevent keyboard from opening during checkbox tap handling.
+  // This persists across the entire checkbox tap lifecycle including
+  // post-frame callbacks to block all keyboard-opening paths.
+  bool _isHandlingCheckboxTap = false;
 
   void _showCaretOnScreen() {
     if (!widget.config.showCursor || _showCaretOnScreenScheduled) {
@@ -1213,6 +1223,9 @@ class QuillRawEditorState extends EditorState
   /// keyboard become visible.
   @override
   void requestKeyboard() {
+    if (_isHandlingCheckboxTap) {
+      return;
+    }
     if (controller.skipRequestKeyboard) {
       controller.skipRequestKeyboard = false;
       return;
